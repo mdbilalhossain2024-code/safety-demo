@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificate Verification</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f2f5f9;margin:0;padding:30px 15px}
+.card{max-width:600px;margin:30px auto;background:white;padding:25px;border-radius:12px;box-shadow:0 3px 15px #ccc}
+h1{text-align:center;color:#123c66}
+p{text-align:center;color:#555}
+input{box-sizing:border-box;width:100%;padding:12px;margin:12px 0;border:1px solid #aaa;border-radius:6px}
+button{width:100%;padding:12px;background:#123c66;color:white;border:0;border-radius:6px;font-size:16px}
+#result{margin-top:20px;padding:15px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Certificate Verification</h1>
+<p>Verify your certificate online</p>
+<input id="cert" placeholder="Enter Certificate ID">
+<button onclick="verify()">Verify Certificate</button>
+<div id="result"></div>
+</div>
+<script>
+function verify(){
+const id=document.getElementById('cert').value.trim().toUpperCase();
+const result=document.getElementById('result');
+const certificates={
+"DEMO001":{name:"Demo Student",course:"Safety Training",status:"Valid"}
+};
+if(certificates[id]){
+const c=certificates[id];
+result.innerHTML="<h3>Certificate Verified</h3><p>Name: "+c.name+"</p><p>Course: "+c.course+"</p><p>Status: "+c.status+"</p>";
+}else{
+result.innerHTML="<p>Certificate not found. Please check the ID.</p>";
+}
+}
+</script>
+</body>
+</html>
