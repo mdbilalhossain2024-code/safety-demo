@@ -39,3 +39,202 @@ result.innerHTML="<p>Certificate not found. Please check the ID.</p>";
 </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Certificate Verification</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 25px 12px;
+      color: #172033;
+    }
+    .card {
+      max-width: 520px;
+      margin: 20px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px #00000015;
+    }
+    h1 { text-align: center; font-size: 25px; }
+    .subtitle { text-align: center; color: #64748b; }
+    input, button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #cbd5e1; }
+    button {
+      background: #123b68;
+      color: white;
+      border: 0;
+      cursor: pointer;
+    }
+    #result { margin-top: 24px; }
+    .status {
+      text-align: center;
+      font-weight: bold;
+      padding: 12px;
+      background: #e8f7ed;
+      color: #18733a;
+      border-radius: 7px;
+    }
+    .expired {
+      background: #fff0f0;
+      color: #b42318;
+    }
+    .field {
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+      overflow-wrap: anywhere;
+    }
+    .label { font-weight: bold; }
+    .worker-photo {
+      display: block;
+      width: 120px;
+      height: 140px;
+      object-fit: cover;
+      margin: 15px auto;
+      border-radius: 8px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Worker Certificate Verification</h1>
+    <p class="subtitle">Verify worker certificate online</p>
+
+    <form id="verifyForm">
+      <input
+        id="workerId"
+        type="text"
+        placeholder="Enter Worker ID"
+        required
+      >
+      <button type="submit">Verify Certificate</button>
+    </form>
+
+    <div id="result" aria-live="polite"></div>
+  </main>
+
+  <script>
+    // Demo data: Add your actual worker records here.
+    const workers = {
+      "demo001": {
+        id: "DEMO001",
+        name: "Demo Worker",
+        position: "Scaffolding Erector",
+        certificateNo: "CERT-2026-001",
+        company: "Your Company Name",
+        trainer: "Demo Trainer",
+        location: "Jubail, Saudi Arabia",
+        issueDate: "2026-08-02",
+        expiryDate: "2027-08-01",
+        photo: ""
+      }
+    };
+
+    const form = document.getElementById("verifyForm");
+    const input = document.getElementById("workerId");
+    const result = document.getElementById("result");
+
+    function showWorker(id) {
+      const key = id.trim().toLowerCase();
+      const worker = workers[key];
+
+      if (!worker) {
+        result.innerHTML =
+          '<p class="status expired">Certificate Not Found</p>' +
+          '<p>Please check the Worker ID.</p>';
+        return;
+      }
+
+      // Compare expiry date using Saudi Arabia's calendar date.
+      const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Riyadh",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+
+      const expired = worker.expiryDate < today;
+      const status = expired ? "EXPIRED" : "VALID";
+
+      result.innerHTML = "";
+
+      const heading = document.createElement("h2");
+      heading.textContent = expired
+        ? "Certificate Expired"
+        : "Certificate Verified";
+      result.appendChild(heading);
+
+      if (worker.photo) {
+        const photo = document.createElement("img");
+        photo.src = worker.photo;
+        photo.alt = "Worker photo";
+        photo.className = "worker-photo";
+        result.appendChild(photo);
+      }
+
+      const statusBox = document.createElement("p");
+      statusBox.className = expired
+        ? "status expired"
+        : "status";
+      statusBox.textContent = "Status: " + status;
+      result.appendChild(statusBox);
+
+      const fields = [
+        ["Worker ID", worker.id],
+        ["Name", worker.name],
+        ["Position", worker.position],
+        ["Certificate No.", worker.certificateNo],
+        ["Company", worker.company],
+        ["Trainer", worker.trainer],
+        ["Location", worker.location],
+        ["Issue Date", worker.issueDate],
+        ["Expiry Date", worker.expiryDate]
+      ];
+
+      fields.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "field";
+
+        const title = document.createElement("span");
+        title.className = "label";
+        title.textContent = label + ": ";
+
+        const text = document.createElement("span");
+        text.textContent = value || "N/A";
+
+        row.append(title, text);
+        result.appendChild(row);
+      });
+    }
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      showWorker(input.value);
+    });
+
+    // Automatically verify when opened through a QR Code URL.
+    const params = new URLSearchParams(window.location.search);
+    const qrId = params.get("id");
+
+    if (qrId) {
+      input.value = qrId;
+      showWorker(qrId);
+    }
+  </script>
+</body>
+</html>
+
